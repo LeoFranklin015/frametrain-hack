@@ -44,8 +44,6 @@ export default function Inspector() {
     const sesh = useSession()
     console.log(sesh.data?.user?.id)
 
-    const displayLabelInputRef = useRef<HTMLInputElement>(null)
-
     const handleSubmit = async () => {
         const calldata = encodeFunctionData({
             abi: ABI,
