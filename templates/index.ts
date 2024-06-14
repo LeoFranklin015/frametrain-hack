@@ -5,6 +5,7 @@ import poll from './poll'
 import sablier from './sablier'
 import twitter from './twitter'
 import github from './github'
+import calcom from './calcom'
 
 export default {
     // basic,
@@ -14,4 +15,5 @@ export default {
     twitter,
     scheduler,
     github,
+    calcom,
 }
