@@ -21,6 +21,8 @@ export interface Config extends BaseConfig {
     bodyColor?: string
     maxBookingDays: number
     karmaGating: boolean
+    nftGating: boolean
+    nftAddress: string
     fid: number
 }
 
@@ -35,6 +37,9 @@ export default {
     enabled: true,
     Inspector,
     functions,
-    initialConfig: {},
-    requiresValidation: false,
+    initialConfig: {
+        karmaGating: false,
+        nftGating: false,
+    },
+    requiresValidation: true,
 } satisfies BaseTemplate

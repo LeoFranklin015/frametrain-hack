@@ -61,9 +61,10 @@ export default function Inspector() {
                 </div>
                 <div className="flex flex-col gap-2 w-full">
                     <h2 className="text-lg">Karma gating</h2>
-                    <ToggleGroup type="single">
+                    <ToggleGroup type="single" className="flex gap-12">
                         <ToggleGroupItem
                             value="true"
+                            className="border-2 border-zinc-600"
                             onClick={() => {
                                 updateConfig({
                                     karmaGating: true,
@@ -74,6 +75,7 @@ export default function Inspector() {
                         </ToggleGroupItem>
                         <ToggleGroupItem
                             value="false"
+                            className="border-2 border-zinc-600"
                             onClick={() => {
                                 updateConfig({
                                     karmaGating: false,
@@ -84,6 +86,48 @@ export default function Inspector() {
                         </ToggleGroupItem>
                     </ToggleGroup>
                 </div>
+                <div className="flex flex-col gap-2 w-full">
+                    <h2 className="text-lg">Nft Gating</h2>
+                    <ToggleGroup type="single" className="flex gap-12">
+                        <ToggleGroupItem
+                            value="true"
+                            className="border-2 border-zinc-600"
+                            onClick={() => {
+                                updateConfig({
+                                    nftGating: true,
+                                })
+                            }}
+                        >
+                            Enabled
+                        </ToggleGroupItem>
+                        <ToggleGroupItem
+                            value="false"
+                            className="border-2 border-zinc-600"
+                            onClick={() => {
+                                updateConfig({
+                                    nftGating: false,
+                                })
+                            }}
+                        >
+                            Disabled
+                        </ToggleGroupItem>
+                    </ToggleGroup>
+                </div>
+                {config.nftGating && (
+                    <div className="flex flex-col gap-2 w-full">
+                        <h2 className="text-lg">NFT address</h2>
+                        <Input
+                            className="text-lg"
+                            placeholder="Enter your NFT address"
+                            onChange={(e) => {
+                                updateConfig({
+                                    nftAddress: e.target.value,
+                                })
+                            }}
+                        />
+                    </div>
+                )}
+
                 <div className="flex flex-col gap-2 w-full">
                     <h2 className="text-lg">Font</h2>
                     <FontFamilyPicker
