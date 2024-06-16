@@ -1,6 +1,6 @@
 'use client'
 import { Input } from '@/components/shadcn/Input'
-import { useFrameConfig, useFrameId } from '@/sdk/hooks'
+import { useFarcasterId, useFrameConfig, useFrameId } from '@/sdk/hooks'
 import { useRef } from 'react'
 import type { Config } from '.'
 import { ColorPicker, FontFamilyPicker, FontStylePicker, FontWeightPicker } from '@/sdk/components'
@@ -12,8 +12,7 @@ import { useSession } from 'next-auth/react'
 export default function Inspector() {
     const frameId = useFrameId()
     const [config, updateConfig] = useFrameConfig<Config>()
-    // const fid = useFarcasterId()
-    const sesh = useSession()
+    const fid = useFarcasterId()
 
     const displayLabelInputRef = useRef<HTMLInputElement>(null)
     const displayLabelDaysRef = useRef<HTMLInputElement>(null)
@@ -22,7 +21,7 @@ export default function Inspector() {
         updateConfig({
             username: username,
 
-            fid: sesh.data?.user?.id,
+            fid:fid
         })
     }
 

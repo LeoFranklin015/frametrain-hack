@@ -1,6 +1,6 @@
 import type { Config } from '..'
 
-export default function CoverView(config: Config) {
+export default function CoverView(config: Config, message: string) {
     const backgroundProp: Record<string, string> = {}
     if (config.background) {
         if (config.background?.startsWith('#')) {
@@ -73,8 +73,7 @@ export default function CoverView(config: Config) {
                     fontSize: '30px',
                 }}
             >
-                You havent satisfied the requirements to meet the call. Only people within 2nd
-                degree of connection can schedule the call.
+                {message}
             </div>
         </div>
     )

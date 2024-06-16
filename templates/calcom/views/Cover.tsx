@@ -67,9 +67,40 @@ export default function CoverView(config: Config) {
                     {`@${config.username}`}
                 </div>
             </div>
+            {config.nftGating ? (
+                <div
+                    style={{
+                        fontSize: '30px',
+                        color: config.primaryColor || 'white',
+                        fontFamily: config.fontFamily || 'Roboto',
+                        alignSelf: 'flex-end',
+                    }}
+                >
+                    {`NFT - ${config.nftAddress} is needed to book the Call`}
+                </div>
+            ) : (
+                <></>
+            )}
+            {config.karmaGating ? (
+                <div
+                    style={{
+                        fontSize: '30px',
+                        color: config.primaryColor || 'white',
+                        fontFamily: config.fontFamily || 'Roboto',
+                        alignSelf: 'flex-end',
+                    }}
+                >
+                    {
+                        'Karma Gating is enabled only people within 2nd degree connnections can book the call'
+                    }
+                </div>
+            ) : (
+                <></>
+            )}
             <div
                 style={{
                     color: config.primaryColor || 'white',
+                    fontSize: '45px',
                 }}
             >
                 Schedule a Call with me

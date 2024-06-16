@@ -12,7 +12,6 @@ export default async function duration(
     params: any
 ): Promise<BuildFrameData> {
     init(process.env.AIRSTACK_API_KEY || '')
-    console.log(body.trustedData)
 
     let containsUserFID = true
     let nftGate = true
@@ -34,14 +33,26 @@ export default async function duration(
         }
     }
     if (config.nftGating) {
+        if (body.validatedData.interactor.verified_addresses.eth_addresses.length === 0) {
+            return {
+                buttons: [],
+                component: NotSatisfied(
+                    config,
+                    'Please Connect wallet to your farcaster account and hold the NFT to schedule the call.'
+                ),
+                functionName: 'initial',
+            }
+        }
         const query = `query MyQuery {
   TokenBalances(
-    input: {filter: {tokenAddress: {_eq: "0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D"}}, blockchain: ethereum, limit: 1}
+    input: {filter: {tokenAddress: {_eq: "${config.nftAddress}"}}, blockchain: ethereum, limit: 1}
   ) {
     TokenBalance {
       owner {
         socials(
-          input: {filter: {dappName: {_eq: farcaster}, userAssociatedAddresses: {_in: "0x2eee539ceb2026a0bf44ff3e7dbc6f8ee3ce47ee"}}}
+          input: {filter: {dappName: {_eq: farcaster}, userAssociatedAddresses: {_in: ["${body.validatedData.interactor.verified_addresses.eth_addresses.join(
+              '","'
+          )}"]}}}
         ) {
           userId
           profileName
@@ -54,19 +65,32 @@ export default async function duration(
 }`
 
         const { data, error } = await fetchQuery(query)
-        console.log(data)
+
         if (
             data.TokenBalances.TokenBalance === null
-            // data.TokenBalances.TokenBalance?.owner?.socials?.userId !== body.untrustedData.fid
+            // data.TokenBalances.TokenBalance?.owner?.socials === null
         ) {
             nftGate = false
         }
     }
 
-    if (!containsUserFID || !nftGate) {
+    if (!containsUserFID) {
         return {
             buttons: [],
-            component: NotSatisfied(config),
+            component: NotSatisfied(
+                config,
+                'You havent satisfied the requirements to meet the call. Only people within 2nd degree of connection can schedule the call.'
+            ),
+            functionName: 'initial',
+        }
+    }
+    if (!nftGate) {
+        return {
+            buttons: [],
+            component: NotSatisfied(
+                config,
+                `You havent satisfied the requirements to meet the call. You need to hold the NFT - ${config.nftAddress} to schedule the call.`
+            ),
             functionName: 'initial',
         }
     }
