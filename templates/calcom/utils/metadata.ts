@@ -24,7 +24,7 @@ async function getERC721ContractName(contractAddress: any): Promise<string> {
         return name;
     } catch (error) {
         console.error('Error getting contract name:', error);
-        return null
+        return ""
     }
 }
 
