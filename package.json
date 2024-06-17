@@ -84,12 +84,11 @@
         "use-debounce": "^10.0.1",
         "usehooks-ts": "^3.1.0",
         "vaul": "^0.9.1",
-        "viem": "^2.12.5",
+        "viem": "^2.14.2",
         "zod": "^3.23.8",
         "zustand": "^4.5.2"
     },
     "devDependencies": {
-
         "@biomejs/biome": "1.7.3",
         "@types/ms": "^0.7.34",
         "@types/node": "^20",
