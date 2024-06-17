@@ -1,7 +1,7 @@
 'use client'
 import { Input } from '@/components/shadcn/Input'
-import { useFarcasterId, useFrameConfig, useFrameId } from '@/sdk/hooks'
-import { useRef } from 'react'
+import { useFrameConfig, useFrameId } from '@/sdk/hooks'
+import { use, useRef } from 'react'
 import type { Config } from '.'
 import { ColorPicker, FontFamilyPicker, FontStylePicker, FontWeightPicker } from '@/sdk/components'
 import { uploadImage } from '@/sdk/upload'
@@ -9,11 +9,12 @@ import { ToggleGroup } from '@/components/shadcn/ToggleGroup'
 import { ToggleGroupItem } from '@/components/shadcn/ToggleGroup'
 import { getName } from './utils/metadata'
 import { balances } from './utils/balances'
+import { useSession } from 'next-auth/react'
 
 export default function Inspector() {
     const frameId = useFrameId()
     const [config, updateConfig] = useFrameConfig<Config>()
-    const fid = useFarcasterId()
+    const sesh = useSession()
 
     const displayLabelInputRef = useRef<HTMLInputElement>(null)
     const displayLabelDaysRef = useRef<HTMLInputElement>(null)
@@ -21,8 +22,7 @@ export default function Inspector() {
     const handleSubmit = async (username: string) => {
         updateConfig({
             username: username,
-
-            fid: fid,
+            fid: sesh.data?.user?.id,
         })
     }
 
