@@ -1,20 +1,49 @@
 'use client'
 import { Input } from '@/components/shadcn/Input'
 import { useFrameConfig, useFrameId } from '@/sdk/hooks'
-import { use, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import type { Config } from '.'
 import { ColorPicker, FontFamilyPicker, FontStylePicker, FontWeightPicker } from '@/sdk/components'
 import { uploadImage } from '@/sdk/upload'
 import { ToggleGroup } from '@/components/shadcn/ToggleGroup'
 import { ToggleGroupItem } from '@/components/shadcn/ToggleGroup'
 import { getName } from './utils/metadata'
-import { balances } from './utils/balances'
+import { mockOptionsAtom } from '@/lib/store'
+import { useAtom } from 'jotai'
+
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/shadcn/Select'
 import { useSession } from 'next-auth/react'
+
+type SimulateConfig = {
+    recasted: boolean
+    liked: boolean
+    following: boolean
+    follower: boolean
+}
 
 export default function Inspector() {
     const frameId = useFrameId()
     const [config, updateConfig] = useFrameConfig<Config>()
+    const [mockOptions, setMockOptions] = useAtom(mockOptionsAtom)
     const sesh = useSession()
+
+    useEffect(() => {
+        const options = ['recasted', 'liked', 'following', 'follower']
+        const newConfig: Partial<SimulateConfig> = {}
+
+        // biome-ignore lint/complexity/noForEach: <explanation>
+        options.forEach((option) => {
+            newConfig[option as keyof SimulateConfig] = mockOptions?.includes(option)
+        })
+
+        updateConfig(newConfig)
+    }, [mockOptions, updateConfig])
 
     const displayLabelInputRef = useRef<HTMLInputElement>(null)
     const displayLabelDaysRef = useRef<HTMLInputElement>(null)
@@ -22,17 +51,36 @@ export default function Inspector() {
     const handleSubmit = async (username: string) => {
         updateConfig({
             username: username,
+
             fid: sesh.data?.user?.id,
         })
     }
 
     const handleNFT = async (nftAddress: string) => {
-        const nftName = await getName(nftAddress)
+        const nftName = await getName(nftAddress, config.nftChain)
         updateConfig({
             nftAddress: nftAddress,
             nftName: nftName,
         })
     }
+    const handleChainChange = (value: any) => {
+        console.log(value)
+        updateConfig({
+            nftChain: value,
+        })
+    }
+    const handleNftTypeChange = (value: any) => {
+        console.log(value)
+        updateConfig({
+            nftType: value,
+        })
+    }
+    const handleTokenIdChange = async (e: any) => {
+        updateConfig({
+            tokenId: e.target.value,
+        })
+    }
+
     return (
         <div className="w-full h-full space-y-4">
             <p>{JSON.stringify(config)}</p>
@@ -121,15 +169,59 @@ export default function Inspector() {
                     </ToggleGroup>
                 </div>
                 {config.nftGating && (
-                    <div className="flex flex-col gap-2 w-full">
-                        <h2 className="text-lg">NFT address</h2>
-                        <Input
-                            className="text-lg"
-                            placeholder="Enter your NFT address"
-                            onChange={async (e) => {
-                                await handleNFT(e.target.value)
-                            }}
-                        />
+                    <div className="flex-col gap-2">
+                        <div className="flex flex-col gap-2 w-full">
+                            <h2 className="text-lg">Choose Chain</h2>
+                            <Select
+                                defaultValue={config.nftChain}
+                                onValueChange={handleChainChange}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select Chain" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="ETH">ETH</SelectItem>
+                                    <SelectItem value="BASE">BASE</SelectItem>
+                                    <SelectItem value="OP">OP</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="flex flex-col gap-2 w-full">
+                            <h2 className="text-lg">Choose NFT Type</h2>
+                            <Select
+                                defaultValue={config.nftType}
+                                onValueChange={handleNftTypeChange}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select NFT type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="ERC721">ERC721</SelectItem>
+                                    <SelectItem value="ERC1155">ERC1155</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="flex flex-col gap-2 w-full">
+                            <h2 className="text-lg">NFT address</h2>
+                            <Input
+                                className="text-lg"
+                                placeholder="Enter your NFT address"
+                                onChange={async (e) => {
+                                    await handleNFT(e.target.value)
+                                }}
+                            />
+                        </div>
+                        {config.nftType === 'ERC1155' && (
+                            <div className="flex flex-col gap-2 w-full">
+                                <h2 className="text-lg">Token ID</h2>
+                                <Input
+                                    className="text-lg"
+                                    placeholder="Enter your NFT token ID"
+                                    onChange={handleTokenIdChange}
+                                />
+                            </div>
+                        )}
                     </div>
                 )}
 
