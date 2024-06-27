@@ -1,15 +1,13 @@
 'use client'
 import { Input } from '@/components/shadcn/Input'
 import { useFrameConfig, useFrameId } from '@/sdk/hooks'
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import type { Config } from '.'
 import { ColorPicker, FontFamilyPicker, FontStylePicker, FontWeightPicker } from '@/sdk/components'
 import { uploadImage } from '@/sdk/upload'
 import { ToggleGroup } from '@/components/shadcn/ToggleGroup'
 import { ToggleGroupItem } from '@/components/shadcn/ToggleGroup'
 import { getName } from './utils/metadata'
-import { mockOptionsAtom } from '@/lib/store'
-import { useAtom } from 'jotai'
 
 import {
     Select,
@@ -19,31 +17,13 @@ import {
     SelectValue,
 } from '@/components/shadcn/Select'
 import { useSession } from 'next-auth/react'
-
-type SimulateConfig = {
-    recasted: boolean
-    liked: boolean
-    following: boolean
-    follower: boolean
-}
+import { Switch } from '@/components/shadcn/Switch'
 
 export default function Inspector() {
     const frameId = useFrameId()
     const [config, updateConfig] = useFrameConfig<Config>()
-    const [mockOptions, setMockOptions] = useAtom(mockOptionsAtom)
+
     const sesh = useSession()
-
-    useEffect(() => {
-        const options = ['recasted', 'liked', 'following', 'follower']
-        const newConfig: Partial<SimulateConfig> = {}
-
-        // biome-ignore lint/complexity/noForEach: <explanation>
-        options.forEach((option) => {
-            newConfig[option as keyof SimulateConfig] = mockOptions?.includes(option)
-        })
-
-        updateConfig(newConfig)
-    }, [mockOptions, updateConfig])
 
     const displayLabelInputRef = useRef<HTMLInputElement>(null)
     const displayLabelDaysRef = useRef<HTMLInputElement>(null)
@@ -224,6 +204,76 @@ export default function Inspector() {
                         )}
                     </div>
                 )}
+                <div className="flex gap-2 w-full">
+                    <div className="flex flex-col gap-2 w-full">
+                        <h2 className="text-lg">Recasted</h2>
+                        <Switch
+                            checked={config.recasted}
+                            onCheckedChange={(checked) => {
+                                if (checked) {
+                                    updateConfig({
+                                        recasted: true,
+                                    })
+                                } else {
+                                    updateConfig({
+                                        recasted: false,
+                                    })
+                                }
+                            }}
+                        />
+                    </div>
+                    <div className="flex flex-col gap-2 w-full">
+                        <h2 className="text-lg">Liked</h2>
+                        <Switch
+                            checked={config.liked}
+                            onCheckedChange={(checked) => {
+                                if (checked) {
+                                    updateConfig({
+                                        liked: true,
+                                    })
+                                } else {
+                                    updateConfig({
+                                        liked: false,
+                                    })
+                                }
+                            }}
+                        />
+                    </div>
+                    <div className="flex flex-col gap-2 w-full">
+                        <h2 className="text-lg">Follower</h2>
+                        <Switch
+                            checked={config.follower}
+                            onCheckedChange={(checked) => {
+                                if (checked) {
+                                    updateConfig({
+                                        follower: true,
+                                    })
+                                } else {
+                                    updateConfig({
+                                        follower: false,
+                                    })
+                                }
+                            }}
+                        />
+                    </div>{' '}
+                    <div className="flex flex-col gap-2 w-full">
+                        <h2 className="text-lg">Following</h2>
+                        <Switch
+                            checked={config.following}
+                            onCheckedChange={(checked) => {
+                                if (checked) {
+                                    updateConfig({
+                                        followinf: true,
+                                    })
+                                } else {
+                                    updateConfig({
+                                        following: true,
+                                    })
+                                }
+                            }}
+                        />
+                    </div>
+                </div>
 
                 <div className="flex flex-col gap-2 w-full">
                     <h2 className="text-lg">Font</h2>
