@@ -1,7 +1,7 @@
 'use client'
 import { Input } from '@/components/shadcn/Input'
 import { useFrameConfig, useFrameId } from '@/sdk/hooks'
-import { useRef } from 'react'
+import { use, useRef } from 'react'
 import type { Config } from '.'
 import { ColorPicker, FontFamilyPicker, FontStylePicker, FontWeightPicker } from '@/sdk/components'
 import { uploadImage } from '@/sdk/upload'
@@ -16,14 +16,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/shadcn/Select'
-import { useSession } from 'next-auth/react'
 import { Switch } from '@/components/shadcn/Switch'
+import { useSession } from 'next-auth/react'
 
 export default function Inspector() {
     const frameId = useFrameId()
-    const [config, updateConfig] = useFrameConfig<Config>()
-
     const sesh = useSession()
+    const [config, updateConfig] = useFrameConfig<Config>()
 
     const displayLabelInputRef = useRef<HTMLInputElement>(null)
     const displayLabelDaysRef = useRef<HTMLInputElement>(null)
@@ -37,36 +36,47 @@ export default function Inspector() {
     }
 
     const handleNFT = async (nftAddress: string) => {
-        const nftName = await getName(nftAddress, config.nftChain)
+        const nftName = await getName(nftAddress, config.nftOptions.nftChain)
         updateConfig({
-            nftAddress: nftAddress,
-            nftName: nftName,
+            nftOptions: {
+                ...config.nftOptions,
+                nftAddress: nftAddress,
+                nftName: nftName,
+            },
         })
     }
     const handleChainChange = (value: any) => {
         console.log(value)
         updateConfig({
-            nftChain: value,
+            nftOptions: {
+                ...config.nftOptions,
+                nftChain: value,
+            },
         })
     }
     const handleNftTypeChange = (value: any) => {
         console.log(value)
         updateConfig({
-            nftType: value,
+            nftOptions: {
+                ...config.nftOptions,
+                nftType: value,
+            },
         })
     }
     const handleTokenIdChange = async (e: any) => {
         updateConfig({
-            tokenId: e.target.value,
+            nftOptions: {
+                ...config.nftOptions,
+                tokenId: e.target.value,
+            },
         })
     }
 
     return (
         <div className="w-full h-full space-y-4">
             <p>{JSON.stringify(config)}</p>
-            <h2 className="text-lg font-semibold">Cal.com</h2>
 
-            <h3 className="text-lg font-semibold">cal.com username</h3>
+            <h3 className="text-lg font-semibold">Enter your Cal username</h3>
 
             <div className="flex flex-col gap-2 ">
                 <Input
@@ -77,32 +87,21 @@ export default function Inspector() {
                         handleSubmit(displayLabelInputRef.current!.value)
                     }}
                 />
-
-                <div className="flex flex-col gap-2 w-full">
-                    <h2 className="text-lg">Set Maximum Booking Days Ahead(3-10)</h2>
-                    <Input
-                        type="number"
-                        min={3}
-                        max={10}
-                        className="text-lg"
-                        placeholder="enter between 3 to 10"
-                        ref={displayLabelDaysRef}
-                        onChange={() => {
-                            updateConfig({
-                                maxBookingDays: Number(displayLabelDaysRef.current!.value),
-                            })
-                        }}
-                    />
-                </div>
-                <div className="flex flex-col gap-2 w-full">
+                <div className="flex flex-col gap-2 w-full md:w-auto">
                     <h2 className="text-lg">Karma gating</h2>
-                    <ToggleGroup type="single" className="flex gap-12">
+                    <span className="text-sm">
+                        (Enables only your second degree connections book call with you)
+                    </span>
+                    <ToggleGroup type="single" className="flex justify-start gap-2">
                         <ToggleGroupItem
                             value="true"
                             className="border-2 border-zinc-600"
                             onClick={() => {
                                 updateConfig({
-                                    karmaGating: true,
+                                    gatingOptions: {
+                                        ...config.gatingOptions,
+                                        karmaGating: true,
+                                    },
                                 })
                             }}
                         >
@@ -113,7 +112,10 @@ export default function Inspector() {
                             className="border-2 border-zinc-600"
                             onClick={() => {
                                 updateConfig({
-                                    karmaGating: false,
+                                    gatingOptions: {
+                                        ...config.gatingOptions,
+                                        karmaGating: false,
+                                    },
                                 })
                             }}
                         >
@@ -121,15 +123,21 @@ export default function Inspector() {
                         </ToggleGroupItem>
                     </ToggleGroup>
                 </div>
-                <div className="flex flex-col gap-2 w-full">
+                <div className="flex flex-col gap-2 w-full md:w-auto">
                     <h2 className="text-lg">Nft Gating</h2>
-                    <ToggleGroup type="single" className="flex gap-12">
+                    <span className="text-sm">
+                        (allow specific user holding NFT to book a call with you)
+                    </span>
+                    <ToggleGroup type="single" className="flex justify-start gap-2">
                         <ToggleGroupItem
                             value="true"
                             className="border-2 border-zinc-600"
                             onClick={() => {
                                 updateConfig({
-                                    nftGating: true,
+                                    gatingOptions: {
+                                        ...config.gatingOptions,
+                                        nftGating: true,
+                                    },
                                 })
                             }}
                         >
@@ -140,7 +148,10 @@ export default function Inspector() {
                             className="border-2 border-zinc-600"
                             onClick={() => {
                                 updateConfig({
-                                    nftGating: false,
+                                    gatingOptions: {
+                                        ...config.gatingOptions,
+                                        nftGating: false,
+                                    },
                                 })
                             }}
                         >
@@ -148,14 +159,11 @@ export default function Inspector() {
                         </ToggleGroupItem>
                     </ToggleGroup>
                 </div>
-                {config.nftGating && (
+                {config.gatingOptions.nftGating && (
                     <div className="flex-col gap-2">
                         <div className="flex flex-col gap-2 w-full">
                             <h2 className="text-lg">Choose Chain</h2>
-                            <Select
-                                defaultValue={config.nftChain}
-                                onValueChange={handleChainChange}
-                            >
+                            <Select onValueChange={handleChainChange}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select Chain" />
                                 </SelectTrigger>
@@ -169,7 +177,7 @@ export default function Inspector() {
                         <div className="flex flex-col gap-2 w-full">
                             <h2 className="text-lg">Choose NFT Type</h2>
                             <Select
-                                defaultValue={config.nftType}
+                                // defaultValue={config.nftOptions.nftType}
                                 onValueChange={handleNftTypeChange}
                             >
                                 <SelectTrigger>
@@ -192,7 +200,7 @@ export default function Inspector() {
                                 }}
                             />
                         </div>
-                        {config.nftType === 'ERC1155' && (
+                        {config.nftOptions.nftType === 'ERC1155' && (
                             <div className="flex flex-col gap-2 w-full">
                                 <h2 className="text-lg">Token ID</h2>
                                 <Input
@@ -204,77 +212,114 @@ export default function Inspector() {
                         )}
                     </div>
                 )}
-                <div className="flex gap-2 w-full">
-                    <div className="flex flex-col gap-2 w-full">
+                <div className="flex flex-col gap-2 w-full">
+                    <div className="flex gap-2 items-center">
                         <h2 className="text-lg">Recasted</h2>
-                        <Switch
-                            checked={config.recasted}
-                            onCheckedChange={(checked) => {
-                                if (checked) {
-                                    updateConfig({
+                        <span className="text-sm">
+                            (only users who recasted your cast can book a call)
+                        </span>
+                    </div>
+                    <Switch
+                        checked={config.gatingOptions.recasted}
+                        onCheckedChange={(checked) => {
+                            if (checked) {
+                                updateConfig({
+                                    gatingOptions: {
+                                        ...config.gatingOptions,
                                         recasted: true,
-                                    })
-                                } else {
-                                    updateConfig({
+                                    },
+                                })
+                            } else {
+                                updateConfig({
+                                    gatingOptions: {
+                                        ...config.gatingOptions,
                                         recasted: false,
-                                    })
-                                }
-                            }}
-                        />
-                    </div>
-                    <div className="flex flex-col gap-2 w-full">
-                        <h2 className="text-lg">Liked</h2>
-                        <Switch
-                            checked={config.liked}
-                            onCheckedChange={(checked) => {
-                                if (checked) {
-                                    updateConfig({
-                                        liked: true,
-                                    })
-                                } else {
-                                    updateConfig({
-                                        liked: false,
-                                    })
-                                }
-                            }}
-                        />
-                    </div>
-                    <div className="flex flex-col gap-2 w-full">
-                        <h2 className="text-lg">Follower</h2>
-                        <Switch
-                            checked={config.follower}
-                            onCheckedChange={(checked) => {
-                                if (checked) {
-                                    updateConfig({
-                                        follower: true,
-                                    })
-                                } else {
-                                    updateConfig({
-                                        follower: false,
-                                    })
-                                }
-                            }}
-                        />
-                    </div>{' '}
-                    <div className="flex flex-col gap-2 w-full">
-                        <h2 className="text-lg">Following</h2>
-                        <Switch
-                            checked={config.following}
-                            onCheckedChange={(checked) => {
-                                if (checked) {
-                                    updateConfig({
-                                        followinf: true,
-                                    })
-                                } else {
-                                    updateConfig({
-                                        following: true,
-                                    })
-                                }
-                            }}
-                        />
-                    </div>
+                                    },
+                                })
+                            }
+                        }}
+                    />
                 </div>
-
+                <div className="flex flex-col gap-2 w-full">
+                    <div className="flex gap-2 items-center">
+                        <h2 className="text-lg">Liked</h2>
+                        <span className="text-sm">
+                            (only users who liked your cast can book a call)
+                        </span>
+                    </div>
+                    <Switch
+                        checked={config.gatingOptions.liked}
+                        onCheckedChange={(checked) => {
+                            if (checked) {
+                                updateConfig({
+                                    gatingOptions: {
+                                        ...config.gatingOptions,
+                                        liked: true,
+                                    },
+                                })
+                            } else {
+                                updateConfig({
+                                    gatingOptions: {
+                                        ...config.gatingOptions,
+                                        liked: false,
+                                    },
+                                })
+                            }
+                        }}
+                    />
+                </div>
+                <div className="flex flex-col gap-2 w-full">
+                    <div className="flex gap-2 items-center">
+                        <h2 className="text-lg">Follower</h2>
+                        <span className="text-sm">(only users who you follow can book a call)</span>
+                    </div>
+                    <Switch
+                        checked={config.gatingOptions.follower}
+                        onCheckedChange={(checked) => {
+                            if (checked) {
+                                updateConfig({
+                                    gatingOptions: {
+                                        ...config.gatingOptions,
+                                        follower: true,
+                                    },
+                                })
+                            } else {
+                                updateConfig({
+                                    gatingOptions: {
+                                        ...config.gatingOptions,
+                                        follower: false,
+                                    },
+                                })
+                            }
+                        }}
+                    />
+                </div>{' '}
+                <div className="flex flex-col gap-2 w-full">
+                    <div className="flex gap-2 items-center">
+                        <h2 className="text-lg">Liked</h2>
+                        <span className="text-sm">(only users who follow you can book a call)</span>
+                    </div>
+                    <Switch
+                        checked={config.gatingOptions.following}
+                        onCheckedChange={(checked) => {
+                            if (checked) {
+                                updateConfig({
+                                    gatingOptions: {
+                                        ...config.gatingOptions,
+                                        following: true,
+                                    },
+                                })
+                            } else {
+                                updateConfig({
+                                    gatingOptions: {
+                                        ...config.gatingOptions,
+                                        following: false,
+                                    },
+                                })
+                            }
+                        }}
+                    />
+                </div>
                 <div className="flex flex-col gap-2 w-full">
                     <h2 className="text-lg">Font</h2>
                     <FontFamilyPicker
@@ -309,7 +354,6 @@ export default function Inspector() {
                         }
                     />
                 </div>
-
                 <div className="flex flex-col gap-2 w-full">
                     <h2 className="text-lg">Title Style</h2>
                     <FontStylePicker
@@ -322,7 +366,6 @@ export default function Inspector() {
                         }
                     />
                 </div>
-
                 <div className="flex flex-col gap-2 w-full">
                     <h2 className="text-lg">Title Weight</h2>
                     <FontWeightPicker
@@ -335,7 +378,6 @@ export default function Inspector() {
                         }
                     />
                 </div>
-
                 <div className="flex flex-col gap-2 w-full">
                     <h2 className="text-lg">Background</h2>
                     <ColorPicker
