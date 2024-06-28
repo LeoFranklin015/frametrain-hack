@@ -21,8 +21,9 @@ import { useSession } from 'next-auth/react'
 
 export default function Inspector() {
     const frameId = useFrameId()
-    const sesh = useSession()
     const [config, updateConfig] = useFrameConfig<Config>()
+
+    const sesh = useSession()
 
     const displayLabelInputRef = useRef<HTMLInputElement>(null)
     const displayLabelDaysRef = useRef<HTMLInputElement>(null)
@@ -30,7 +31,6 @@ export default function Inspector() {
     const handleSubmit = async (username: string) => {
         updateConfig({
             username: username,
-
             fid: sesh.data?.user?.id,
         })
     }
@@ -76,7 +76,7 @@ export default function Inspector() {
         <div className="w-full h-full space-y-4">
             <p>{JSON.stringify(config)}</p>
 
-            <h3 className="text-lg font-semibold">Enter your Cal username</h3>
+            <h1 className="text-2xl font-semibold">Cal username</h1>
 
             <div className="flex flex-col gap-2 ">
                 <Input
@@ -87,11 +87,10 @@ export default function Inspector() {
                         handleSubmit(displayLabelInputRef.current!.value)
                     }}
                 />
+                <h1 className="text-2xl font-semibold">Gating Options</h1>
                 <div className="flex flex-col gap-2 w-full md:w-auto">
                     <h2 className="text-lg">Karma gating</h2>
-                    <span className="text-sm">
-                        (Enables only your second degree connections book call with you)
-                    </span>
+
                     <ToggleGroup type="single" className="flex justify-start gap-2">
                         <ToggleGroupItem
                             value="true"
@@ -122,12 +121,13 @@ export default function Inspector() {
                             Disabled
                         </ToggleGroupItem>
                     </ToggleGroup>
+                    <p className="text-sm text-muted-foreground">
+                        Enable users within your second-degree connections to book a call.
+                    </p>
                 </div>
                 <div className="flex flex-col gap-2 w-full md:w-auto">
-                    <h2 className="text-lg">Nft Gating</h2>
-                    <span className="text-sm">
-                        (allow specific user holding NFT to book a call with you)
-                    </span>
+                    <h2 className="text-lg">NFT Gating</h2>
+
                     <ToggleGroup type="single" className="flex justify-start gap-2">
                         <ToggleGroupItem
                             value="true"
@@ -158,6 +158,9 @@ export default function Inspector() {
                             Disabled
                         </ToggleGroupItem>
                     </ToggleGroup>
+                    <p className="text-sm text-muted-foreground">
+                        Allow specific users holding an NFT to book a call.
+                    </p>
                 </div>
                 {config.gatingOptions.nftGating && (
                     <div className="flex-col gap-2">
@@ -213,12 +216,8 @@ export default function Inspector() {
                     </div>
                 )}
                 <div className="flex flex-col gap-2 w-full">
-                    <div className="flex gap-2 items-center">
-                        <h2 className="text-lg">Recasted</h2>
-                        <span className="text-sm">
-                            (only users who recasted your cast can book a call)
-                        </span>
-                    </div>
+                    <h2 className="text-lg">Recasted</h2>
+
                     <Switch
                         checked={config.gatingOptions.recasted}
                         onCheckedChange={(checked) => {
@@ -239,14 +238,13 @@ export default function Inspector() {
                             }
                         }}
                     />
+                    <p className="text-sm text-muted-foreground">
+                        Only allow users who recasted this cast to book a call.
+                    </p>
                 </div>
                 <div className="flex flex-col gap-2 w-full">
-                    <div className="flex gap-2 items-center">
-                        <h2 className="text-lg">Liked</h2>
-                        <span className="text-sm">
-                            (only users who liked your cast can book a call)
-                        </span>
-                    </div>
+                    <h2 className="text-lg">Liked</h2>
+
                     <Switch
                         checked={config.gatingOptions.liked}
                         onCheckedChange={(checked) => {
@@ -267,12 +265,13 @@ export default function Inspector() {
                             }
                         }}
                     />
+                    <p className="text-sm text-muted-foreground">
+                        Only allow users who liked this cast to book a call.
+                    </p>
                 </div>
                 <div className="flex flex-col gap-2 w-full">
-                    <div className="flex gap-2 items-center">
-                        <h2 className="text-lg">Follower</h2>
-                        <span className="text-sm">(only users who you follow can book a call)</span>
-                    </div>
+                    <h2 className="text-lg">Follower</h2>
+
                     <Switch
                         checked={config.gatingOptions.follower}
                         onCheckedChange={(checked) => {
@@ -293,12 +292,13 @@ export default function Inspector() {
                             }
                         }}
                     />
+                    <p className="text-sm text-muted-foreground">
+                        Only allow users who you follow to book a call.
+                    </p>
                 </div>{' '}
                 <div className="flex flex-col gap-2 w-full">
-                    <div className="flex gap-2 items-center">
-                        <h2 className="text-lg">Following</h2>
-                        <span className="text-sm">(only users who follow you can book a call)</span>
-                    </div>
+                    <h2 className="text-lg">Following</h2>
+
                     <Switch
                         checked={config.gatingOptions.following}
                         onCheckedChange={(checked) => {
@@ -319,6 +319,9 @@ export default function Inspector() {
                             }
                         }}
                     />
+                    <p className="text-sm text-muted-foreground">
+                        Only allow users who follow you to book a call.
+                    </p>
                 </div>
                 <div className="flex flex-col gap-2 w-full">
                     <h2 className="text-lg">Font</h2>
