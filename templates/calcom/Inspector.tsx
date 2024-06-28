@@ -296,7 +296,7 @@ export default function Inspector() {
                 </div>{' '}
                 <div className="flex flex-col gap-2 w-full">
                     <div className="flex gap-2 items-center">
-                        <h2 className="text-lg">Liked</h2>
+                        <h2 className="text-lg">Following</h2>
                         <span className="text-sm">(only users who follow you can book a call)</span>
                     </div>
                     <Switch
