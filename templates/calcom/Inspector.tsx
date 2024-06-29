@@ -1,7 +1,7 @@
 'use client'
 import { Input } from '@/components/shadcn/Input'
-import { useFrameConfig, useFrameId } from '@/sdk/hooks'
-import { use, useRef } from 'react'
+import { useFarcasterId, useFrameConfig, useFrameId } from '@/sdk/hooks'
+import { useEffect, useRef } from 'react'
 import type { Config } from '.'
 import { ColorPicker, FontFamilyPicker, FontStylePicker, FontWeightPicker } from '@/sdk/components'
 import { uploadImage } from '@/sdk/upload'
@@ -17,13 +17,12 @@ import {
     SelectValue,
 } from '@/components/shadcn/Select'
 import { Switch } from '@/components/shadcn/Switch'
-import { useSession } from 'next-auth/react'
+import { corsFetch } from '@/sdk/scrape'
 
 export default function Inspector() {
     const frameId = useFrameId()
     const [config, updateConfig] = useFrameConfig<Config>()
-
-    const sesh = useSession()
+    const fid = useFarcasterId()
 
     const displayLabelInputRef = useRef<HTMLInputElement>(null)
     const displayLabelDaysRef = useRef<HTMLInputElement>(null)
@@ -31,7 +30,7 @@ export default function Inspector() {
     const handleSubmit = async (username: string) => {
         updateConfig({
             username: username,
-            fid: sesh.data?.user?.id,
+            fid: fid,
         })
     }
 
@@ -71,6 +70,29 @@ export default function Inspector() {
             },
         })
     }
+
+    // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+    useEffect(() => {
+        corsFetch(
+            `https://cal.com/api/trpc/public/event?batch=1&input={"0":{"json":{"username":"${config.username}","eventSlug":"15min","isTeamEvent":false,"org":null}}}`,
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }
+        )
+            .then((text) => {
+                const data = JSON.parse(text as string)
+                const img = data[0].result.data.json.profile.image
+                const name = data[0].result.data.json.profile.name
+                updateConfig({
+                    image: img,
+                    name: name,
+                })
+            })
+            .catch((error) => console.error('Error:', error))
+    }, [config.username])
 
     return (
         <div className="w-full h-full space-y-4">
